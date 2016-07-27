@@ -4,7 +4,7 @@
 *.db-journal
 *.sass-cache
 *.orig
-config/config.ini
+pkmnIDs.txt
 static/dist/
 node_modules/
 venv/
