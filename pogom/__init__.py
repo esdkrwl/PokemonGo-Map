@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 config = {
-    'LOCALE': 'en',
+    'LOCALE': 'de',
     'LOCALES_DIR': 'static/locales',
     'ROOT_PATH': '',
     'ORIGINAL_LATITUDE': None,

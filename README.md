@@ -1,47 +1,34 @@
-# PokemonGo Map![Python 2.7](https://img.shields.io/badge/python-2.7-blue.svg)
+# PokemonGo Map
+Map im Browser und Tweets in der Tasche!
 
-
-Live visualization of all the pokemon (with option to show gyms and pokestops) in your area. This is a proof of concept that we can load all the pokemon visible nearby given a location. Currently runs on a Flask server displaying Google Maps with markers on it.
-
-Features: 
-
-* Shows Pokemon, Pokestops, and gyms with a clean GUI.
-* Notifications 
-* Lure information
-* Multithreaded mode
-* Filters
-* Independent worker threads (many can be used simulatenously to quickly generate a livemap of a huge geographical area)
-* Localization (en, fr, pt_br, de, ru, zh_cn, zh_hk)
-* DB storage (sqlite or mysql) of all found pokemon
-* Incredibly fast, efficient searching algorithm (compared to everything else available)
-
-[![Deploy](https://raw.githubusercontent.com/sych74/PokemonGo-Map-in-Cloud/master/images/deploy-to-jelastic.png)](https://jelastic.com/install-application/?manifest=https://raw.githubusercontent.com/sych74/PokemonGo-Map-in-Cloud/master/manifest.jps) [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://github.com/AHAAAAAAA/PokemonGo-Map/wiki/Heroku-Deployment) 
-
-#[Twitter] (https://twitter.com/PoGoMDev), [Website] (https://jz6.github.io/PoGoMap/)#
-
-![Map](https://raw.githubusercontent.com/AHAAAAAAA/PokemonGo-Map/master/static/cover.png)
+#[Official Twitter] 
+https://twitter.com/bot_ketchum
 
 
 ## How to setup
+0. Projekt (Develop Branch) als Zip herunterladen.
+1. Python 2.7.12 installieren. Wichtig, dass eine Umgebungsvariable für Python erstellt wird. https://www.python.org/downloads/release/python-2712/ Pc nach Installation neu starten.
+2. Pip installieren. https://bootstrap.pypa.io/get-pip.py. Skript runterladen, Konsole öffnen (Strg + X Eingabeaufforderung(Administrator)), mit dem cd Befehl zum Speicherort wechseln und 'python get-pip.py' eintippen und bestätigen.
+3. Node JS installieren https://nodejs.org/en/download/
+4. Restliche Requirements installieren. In den Easy Setup Ordner mit dem cd Befehl wechseln und 'pip install -r requirements.txt' in die Konsole eintippen und bestätigen. Sollte es zu Fehlern kommen, probiert diesen Befehl 'pip install setuptools==21.2.1' und versucht Schritt 4 dann nochmal.
+5. Skript starten. Dazu in der Konsole, sofern ihr euch über den pkmn Trainer Club einloggt.
+ python runserver.py -a ptc -u USERNAME -p PASSWORT -l "ORT oder Adresse oder Koordinanten wie "53.155591, 8.234257"" -st 10 -L 'de'. Weitere Parameter sind optinal. Alternativ in die Datei /config/config.ini Parameter eintragen und Skript mit python runserver.py -se starten. Dort können auch Twitter API Daten für einen eigenen Twitterbot oder Pokemon eingetragen werden nach denen gesucht werden soll.
+6. Browser starten und 127.0.0.1:5000 eintippen und bestätigen. Schon erscheint die PokemonGo Map und ihr erhaltet Tweets.
+7. Fast-Start Option: config.ini mit username, passwort und location füllen und den richtigen Pfad zum Projekt in die runServer.bat eintragen. Über die .bat kann der Server dann gestartet werden.
 
-For instructions on how to setup and run the tool, please refer to the project [wiki](https://github.com/AHAAAAAAA/PokemonGo-Map/wiki), or the [video guide](https://www.youtube.com/watch?v=RJKAulPCkRI).
+## Ups. Etwas ist schief gegangen.
+Sollte diese Fehlermeldung erscheinen stimmt etwas mit dem Google Maps API Key, den ich euch vererbt habe, nicht mehr. Einfach unten stehende Anleitung befolgen. Hinweis: Falls ihr das Skript über python runserver.py -st startet, muss der API Key auch in die config.ini eingetragen werden.
+https://github.com/AHAAAAAAA/PokemonGo-Map/wiki/Google-Maps-API:-a-brief-guide-to-your-own-key
 
 
-## Android Version
-
-There is an [Android port](https://github.com/omkarmoghe/Pokemap) in the works. All Android related prs and issues please refer to this [repo](https://github.com/omkarmoghe/Pokemap).
-
-## iOS Version
-
-There is an [iOS port](https://github.com/istornz/iPokeGo) in the works. All iOS related prs and issues please refer to this [repo](https://github.com/istornz/iPokeGo).
 
 ## Warnings
 
-Using this software is against the ToS of the game. You can get banned, use this tool at your own risk.
+Die Funktionen des Skript sind gegen die Nutzungsbedingungen von Pokemon Go. Erstellt euch am besten einen neuen Pokemontrainerclub Account um das Programm zu nutzen.
 
 
-## Contributions
+## Contributing
 
 Please submit all pull requests to [develop](https://github.com/AHAAAAAAA/PokemonGo-Map/tree/develop) branch.
 
-Building off [tejado's python pgoapi](https://github.com/tejado/pgoapi), [Mila432](https://github.com/Mila432/Pokemon_Go_API)'s API, [leegao's additions](https://github.com/leegao/pokemongo-api-demo/tree/simulation) and [Flask-GoogleMaps](https://github.com/rochacbruno/Flask-GoogleMaps). Current version relies primarily on the pgoapi and Google Maps JS API.
+Building off [Mila432](https://github.com/Mila432/Pokemon_Go_API)'s PokemonGo API, [tejado's additions](https://github.com/tejado/pokemongo-api-demo), [leegao's additions](https://github.com/leegao/pokemongo-api-demo/tree/simulation) and [Flask-GoogleMaps](https://github.com/rochacbruno/Flask-GoogleMaps).

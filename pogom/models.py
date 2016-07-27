@@ -9,8 +9,11 @@ from peewee import Model, MySQLDatabase, SqliteDatabase, InsertQuery, IntegerFie
 from datetime import datetime
 from datetime import timedelta
 from base64 import b64encode
+from geopy.geocoders import Nominatim
 
 from . import config
+import ConfigParser
+from .tweet import sendTweet
 from .utils import get_pokemon_name, get_args
 from .transform import transform_from_wgs_to_gcj
 from .customLog import printPokemon
@@ -21,6 +24,15 @@ log = logging.getLogger(__name__)
 
 args = get_args()
 db = None
+
+Config = ConfigParser.ConfigParser()
+Config.read(os.path.join(os.path.dirname(__file__), '../config/pkmn_config.ini'))
+geolocator = Nominatim()
+
+uncommon = Config.get('PKMN_Lists', 'tier1')
+selten = Config.get('PKMN_Lists', 'tier2')
+sehrSelten = Config.get('PKMN_Lists', 'tier3')
+legend = Config.get('PKMN_Lists', 'GODTIER')
 
 def init_database():
     global db
@@ -228,6 +240,152 @@ def parse_map(map_dict, iteration_num, step, step_location):
                 d_t = datetime.utcfromtimestamp(
                     (p['last_modified_timestamp_ms'] +
                      p['time_till_hidden_ms']) / 1000.0)
+                name = get_pokemon_name(p['pokemon_data']['pokemon_id'])
+                hour = (int(d_t.hour) + 2) % 24
+                if hour < 10:
+                    hour = '0' + str(hour)
+                h = str(hour)
+                minute = d_t.minute
+                if (minute < 10):
+                    minute = '0' + str(minute)
+                m = str(minute)
+                sekunde = d_t.second
+                if (sekunde < 10):
+                    sekunde = '0' + str(sekunde)
+                s = str(sekunde)
+                coordinates = '%f, %f' % (p['latitude'], p['longitude'])
+                if name in uncommon:
+                    encounterIDs = open('pkmnIDs.txt', 'r')
+                    isVarIn = False
+                    for line in encounterIDs:
+                        if str(p['encounter_id']) in line:
+                            isVarIn = True
+                            log.info(name + ' wurde bereits registriert.')
+                    encounterIDs.close()
+                    if isVarIn == False:
+                        log.info('Ungewoehnliches Pokemon gefunden: ' + name)
+                        try:
+                            location = geolocator.reverse(coordinates)
+                        except Exception as error:
+                            log.error(error)
+
+                        # sp = location.address.split(',')
+                        url = 'https://www.google.com/maps?q=%f,+%f' % (p['latitude'], p['longitude'])
+                        # tinyURL = shortener.short(url)
+                        try:
+                            tweet = 'Gutes Pokemon %s in %s entdeckt! Despawn um %s:%s:%s! Standort: %s' % (
+                                name,
+                                location.raw['address']['postcode'],
+                                h, m, s, url)
+                        except KeyError as error:
+                            log.error('Fehler bei der Adresse!')
+                            tweet = (
+                                'Shit Tier Pokemon %s entdeckt! Despawn um %s:%s:%s! Standort: %s' % (name,
+                                                                                                      h, m, s, url))
+                            # tweet = 'Uncommon! %s entdeckt! Standort: %s! Despawn um %d:%s:%s!' % (p['pokemon_name'], sp[1], sp[0],
+                            #                                                                              location.raw['address']['city'], hour, m, s)
+                        sendTweet(tweet)
+                        encounterIDs = open('pkmnIDs.txt', 'a')
+                        encounterIDs.write(str(p['encounter_id']))
+                        encounterIDs.write('\n')
+                        encounterIDs.close()
+
+                if name in selten:
+                    encounterIDs = open('pkmnIDs.txt', 'r')
+                    isVarIn = False
+                    for line in encounterIDs:
+                        if str(p['encounter_id']) in line:
+                            isVarIn = True
+                            log.info(name + ' wurde bereits registriert.')
+                    encounterIDs.close()
+                    if isVarIn == False:
+                        log.info('Seltenes Pokemon gefunden: ' + name)
+                        try:
+                            location = geolocator.reverse(coordinates)
+                        except Exception as error:
+                            log.error(error)
+                        # sp = location.address.split(',')
+                        url = 'https://www.google.com/maps?q=%f,+%f' % (p['latitude'], p['longitude'])
+                        # tinyURL = shortener.short(url)
+                        try:
+                            tweet = 'Selten! Ein wildes %s in %s! Despawn um %s:%s:%s! Standort: %s' % (name,
+                                                                                                        location.raw[
+                                                                                                            'address'][
+                                                                                                            'postcode'],
+                                                                                                        h, m, s, url)
+                        except KeyError as error:
+                            log.error('Fehler bei der Adresse!')
+                            tweet = 'Selten! Ein wildes %s! Despawn um %s:%s:%s! Standort: %s' % (name,
+                                                                                                  h, m, s, url)
+
+                        sendTweet(tweet)
+                        encounterIDs = open('pkmnIDs.txt', 'a')
+                        encounterIDs.write(str(p['encounter_id']))
+                        encounterIDs.write('\n')
+                        encounterIDs.close()
+
+                if name in sehrSelten:
+                    encounterIDs = open('pkmnIDs.txt', 'r')
+                    isVarIn = False
+                    for line in encounterIDs:
+                        if str(p['encounter_id']) in line:
+                            isVarIn = True
+                            log.info(name + ' wurde bereits registriert.')
+                    encounterIDs.close()
+                    if isVarIn == False:
+                        print('Sehr seltenes Pokemon gefunden: ' + name)
+                        try:
+                            location = geolocator.reverse(coordinates)
+                        except Exception as error:
+                            log.error(error)
+
+                        # sp = location.address.split(',')
+                        url = 'https://www.google.com/maps?q=%f,+%f' % (p['latitude'], p['longitude'])
+                        # tinyURL = shortener.short(url)
+                        try:
+                            tweet = 'Sehr selten! Ein wildes %s in %s! Despawn um %s:%s:%s! Standort: %s' % (
+                                name, location.raw['address']['postcode'], h, m, s, url)
+                        except KeyError as error:
+                            log.error('Fehler bei der Adresse!')
+                            tweet = 'Sehr selten! Ein wildes %s! Despawn um %s:%s:%s! Standort: %s' % (name,
+                                                                                                       h, m, s, url)
+                        sendTweet(tweet)
+                        encounterIDs = open('pkmnIDs.txt', 'a')
+                        encounterIDs.write(str(p['encounter_id']))
+                        encounterIDs.write('\n')
+                        encounterIDs.close()
+
+                if name in legend:
+                    encounterIDs = open('pkmnIDs.txt', 'r')
+                    isVarIn = False
+                    for line in encounterIDs:
+                        if str(p['encounter_id']) in line:
+                            isVarIn = True
+                            log.info(name + ' wurde bereits registriert.')
+                    encounterIDs.close()
+                    if isVarIn == False:
+                        log.info('Legendaeres Pokemon gefunden: ' + name)
+
+                        try:
+                            location = geolocator.reverse(coordinates)
+                        except Exception as error:
+                            log.error(error)
+
+                        # sp = location.address.split(',')
+                        url = 'https://www.google.com/maps?q=%f,+%f' % (p['latitude'], p['longitude'])
+                        # tinyURL = shortener.short(url)
+                        try:
+                            tweet = 'Legendary! Ein wildes %s in %s! Despawn um %s:%s:%s! Standort: %s' % (
+                                name, location.raw['address']['postcode'], h, m, s, url)
+                        except KeyError as error:
+                            log.error('Fehler bei der Adresse')
+                            tweet = 'Legendary! Ein wildes %s! Despawn um %s:%s:%s! Standort: %s' % (name,
+                                                                                                     h, m, s, url)
+                        sendTweet(tweet)
+                        encounterIDs = open('pkmnIDs.txt', 'a')
+                        encounterIDs.write(str(p['encounter_id']))
+                        encounterIDs.write('\n')
+                        encounterIDs.close()
                 printPokemon(p['pokemon_data']['pokemon_id'],p['latitude'],p['longitude'],d_t)
                 pokemons[p['encounter_id']] = {
                     'encounter_id': b64encode(str(p['encounter_id'])),
